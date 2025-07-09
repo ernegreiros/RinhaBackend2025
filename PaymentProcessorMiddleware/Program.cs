@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,6 +21,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/payments-summary", async ([FromQuery] string from, [FromQuery] string to) =>
+{
+    await Task.Delay(1);
+
+    return new
+    {
+        @default = new
+        {
+            totalRequests = 100,
+            totalAmount = 100,
+            totalFee = 100,
+            feePerTransaction = 0.1
+        },
+        fallback = new
+        {
+            totalRequests = 100,
+            totalAmount = 100,
+            totalFee = 100,
+            feePerTransaction = 0.1
+        }
+    };
+});
 
 app.MapPost("/payments", async (Transaction transaction, IHttpClientFactory httpClientFactory) =>
 {   
