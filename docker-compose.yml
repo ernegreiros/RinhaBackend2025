@@ -1,0 +1,15 @@
+services:
+  paymentprocessormiddleware:
+    image: ${DOCKER_REGISTRY-}paymentprocessormiddleware
+    networks:
+      - backend
+      - payment-processor
+    build:
+      context: .
+      dockerfile: PaymentProcessorMiddleware/Dockerfile
+
+networks:
+  backend:
+    driver: bridge
+  payment-processor:
+    external: true
