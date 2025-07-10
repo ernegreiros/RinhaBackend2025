@@ -48,7 +48,6 @@ app.MapPost("/payments", async (Transaction transaction, IHttpClientFactory http
 {   
     var client = httpClientFactory.CreateClient();
     var requestUri = new Uri($"{api_default}/payments");
-    
 
     var requestedAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
     var paymentBody = new Payment(transaction.CorrelationId, transaction.Amount, requestedAt);
