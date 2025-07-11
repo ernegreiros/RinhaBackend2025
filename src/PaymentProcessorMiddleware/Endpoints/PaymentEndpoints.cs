@@ -72,7 +72,7 @@ public static class PaymentEndpoints
                     );
 
                 using var client = httpClientFactory.CreateClient();
-                var uri = new Uri($"{Consts.DefaultApi}/payments");
+                var uri = new Uri($"{Consts.DefaultApiAddress}/payments");
                 var paymentBody = new
                 {
                     correlationId = payment.CorrelationId,
