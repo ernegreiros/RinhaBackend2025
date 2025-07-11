@@ -1,18 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
+using Endpoints;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]));
 
 var app = builder.Build();
-var api_default = Environment.GetEnvironmentVariable("PAYMENT_PROCESSOR_URL_DEFAULT") ?? "http://payment-processor-default:8080";
-var api_fallback =Environment.GetEnvironmentVariable("PAYMENT_PROCESSOR_URL_FALLBACK") ?? "http://payment-processor-fallback:8080"; 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -20,50 +15,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.MapGet("/payments-summary", async ([FromQuery] string from, [FromQuery] string to) =>
-{
-    await Task.Delay(1);
-
-    return new
-    {
-        @default = new
-        {
-            totalRequests = 100,
-            totalAmount = 100,
-            totalFee = 100,
-            feePerTransaction = 0.1
-        },
-        fallback = new
-        {
-            totalRequests = 100,
-            totalAmount = 100,
-            totalFee = 100,
-            feePerTransaction = 0.1
-        }
-    };
-});
-
-app.MapPost("/payments", async (Transaction transaction, IHttpClientFactory httpClientFactory) =>
-{   
-    var client = httpClientFactory.CreateClient();
-    var requestUri = new Uri($"{api_default}/payments");
-
-    var requestedAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-    var paymentBody = new Payment(transaction.CorrelationId, transaction.Amount, requestedAt);
-
-    app.Logger.LogInformation($"Object being sent: CorrelationId: {paymentBody.CorrelationId}, Amount: {paymentBody.Amount}, RequestedAt: {requestedAt}");
-
-    using var response = await client.PostAsJsonAsync(requestUri, paymentBody);
-
-    var responseMessage = await response.Content.ReadAsStringAsync();
-
-    app.Logger.LogInformation(responseMessage);
-})
-.WithName("payments")
-.WithOpenApi();
-
+app.AddPaymentEndpoints();
 app.Run();
-
-record Transaction(Guid CorrelationId, decimal Amount);
-record Payment(Guid CorrelationId, decimal Amount, string RequestedAt);
