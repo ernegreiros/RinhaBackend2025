@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -13,6 +13,29 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Net" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="Microsoft.AspNetCore.Mvc" />
+    <Using Include="Microsoft.AspNetCore.Builder" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+    <Using Include="System.Threading.Channels" />
+    <Using Include="FluentResults" />
+    <Using Include="Npgsql" />
+    <Using Include="PaymentProcessorMiddleware" />
+    <Using Include="Domain" />
+    <Using Include="Endpoints" />
+    <Using Include="Models" />
+    <Using Include="Infrastructure" />
+    <Using Include="Infrastructure.Channels" />
   </ItemGroup>
 
 </Project>

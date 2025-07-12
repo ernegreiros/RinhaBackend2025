@@ -1,11 +1,10 @@
-using Endpoints;
-using Infrastructure;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]));
+builder.Services.AddSingleton(_ => new PaymentChannel());
+builder.Services.AddHostedService(_ => new PaymentChannelProcessor(_.GetRequiredService<PaymentChannel>()));
 
 var app = builder.Build();
 app.UseSwagger();

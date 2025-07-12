@@ -1,9 +1,4 @@
-﻿using System.Collections.Immutable;
-using Domain;
-using FluentResults;
-using Npgsql;
-
-namespace Infrastructure;
+﻿namespace Infrastructure;
 
 public class PaymentRepository
 {

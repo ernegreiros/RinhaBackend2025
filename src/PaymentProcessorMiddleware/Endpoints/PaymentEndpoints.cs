@@ -1,10 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Net;
-using Domain;
-using Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using Models;
-using PaymentProcessorMiddleware;
+﻿using Npgsql.Internal;
 
 namespace Endpoints;
 
@@ -14,13 +8,14 @@ public static class PaymentEndpoints
     {
         app.MapGet("/payments-summary", async (
                 [FromServices] PaymentRepository paymentRepository,
-                [FromQuery(Name="from")] string? f,
-                [FromQuery(Name="to")] string? t,
+                [FromQuery(Name = "from")] string? f,
+                [FromQuery(Name = "to")] string? t,
                 CancellationToken cancellationToken) =>
             {
                 var from = string.IsNullOrWhiteSpace(f)
                     ? DateTimeOffset.MinValue
                     : DateTimeOffset.Parse(f);
+
                 var to = string.IsNullOrWhiteSpace(t)
                     ? DateTimeOffset.MaxValue
                     : DateTimeOffset.Parse(t);
@@ -52,7 +47,7 @@ public static class PaymentEndpoints
                         @default = BuildSummary(defaultPayments, Consts.DefaultApiFee),
                         fallBack = BuildSummary(fallbackPayments, Consts.FallbackApiFee)
                     }
-                );                
+                );
             })
             .WithName("payments-summary")
             .WithOpenApi();
@@ -60,9 +55,11 @@ public static class PaymentEndpoints
         app.MapPost("/payments", async (
                 [FromServices] IHttpClientFactory httpClientFactory,
                 [FromServices] PaymentRepository paymentRepository,
-                [FromBody] PaymentModel payment) =>
+                [FromServices] PaymentChannel paymentChannel,
+                [FromBody] PaymentModel payment,
+                CancellationToken cancellationToken) =>
             {
-                var paymentResult = await paymentRepository.PersistPayment(payment.ToDomain(), CancellationToken.None);
+                var paymentResult = await paymentRepository.PersistPayment(payment, cancellationToken);
                 if (paymentResult.IsFailed)
                     return Results.Problem
                     (
@@ -82,7 +79,10 @@ public static class PaymentEndpoints
 
                 Console.WriteLine("Request received {0}", paymentBody);
 
-                using var response = await client.PostAsJsonAsync(uri, paymentBody);
+                // Post request to the payment channel
+                await paymentChannel.Writer.WriteAsync(payment, cancellationToken);
+
+                using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
 
                 return response.IsSuccessStatusCode
                     ? Results.Accepted()
@@ -96,7 +96,7 @@ public static class PaymentEndpoints
             .WithName("payments")
             .WithOpenApi();
     }
-    
+
     private static object BuildSummary(ImmutableList<Payment>? payments, decimal fee) => new
     {
         totalRequests = payments?.Count > 0
