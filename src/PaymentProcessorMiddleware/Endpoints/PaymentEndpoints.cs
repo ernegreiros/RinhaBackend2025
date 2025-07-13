@@ -82,16 +82,18 @@ public static class PaymentEndpoints
                 // Post request to the payment channel
                 await paymentChannel.Writer.WriteAsync(payment, cancellationToken);
 
-                using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
+                return Results.Accepted();
 
-                return response.IsSuccessStatusCode
-                    ? Results.Accepted()
-                    : Results.Problem
-                    (
-                        statusCode: (int)response.StatusCode,
-                        title: "Error while processing payment",
-                        detail: response.ReasonPhrase
-                    );
+                //using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
+
+                //return response.IsSuccessStatusCode
+                //    ? Results.Accepted()
+                //    : Results.Problem
+                //    (
+                //        statusCode: (int)response.StatusCode,
+                //        title: "Error while processing payment",
+                //        detail: response.ReasonPhrase
+                //    );
             })
             .WithName("payments")
             .WithOpenApi();
