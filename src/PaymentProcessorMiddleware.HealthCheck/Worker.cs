@@ -31,7 +31,7 @@ public class Worker : BackgroundService
             await Task.WhenAll
             (
                 CheckHealth(_uriDefault, _defaultPaymentProcessorHealth, cancellationToken),
-                CheckHealth(_uriFallback, _fallbackPaymentProcessorHealth,  cancellationToken)
+                CheckHealth(_uriFallback, _fallbackPaymentProcessorHealth, cancellationToken)
             );
         }
     }

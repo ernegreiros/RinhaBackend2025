@@ -5,17 +5,14 @@ public class PaymentChannelProcessor : BackgroundService
     private readonly PaymentChannel _paymentChannel;
     private readonly PaymentRepository _paymentRepository;
     private readonly PaymentProcessorFacade _paymentProcessorFacade;
-    private readonly IHttpClientFactory _httpClientFactory;
     
     public PaymentChannelProcessor(
         PaymentChannel paymentChannel,
         PaymentRepository paymentRepository,
-        PaymentProcessorFacade paymentProcessorFacade,
-        IHttpClientFactory httpClientFactory)
+        PaymentProcessorFacade paymentProcessorFacade)
     {
         _paymentChannel = paymentChannel;
         _paymentRepository = paymentRepository;
-        _httpClientFactory = httpClientFactory;
         _paymentProcessorFacade = paymentProcessorFacade;
     }
     
