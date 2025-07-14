@@ -1,3 +1,3 @@
 ﻿namespace Domain;
 
-public record Payment(decimal Amount, string Service, DateTimeOffset CreatedOn);
+public record Payment(Guid CorrelationId, decimal Amount, string Service, DateTimeOffset CreatedOn);

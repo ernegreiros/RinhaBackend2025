@@ -45,7 +45,7 @@ public static class PaymentEndpoints
                     new
                     {
                         @default = BuildSummary(defaultPayments, Consts.DefaultApiFee),
-                        fallBack = BuildSummary(fallbackPayments, Consts.FallbackApiFee)
+                        fallback = BuildSummary(fallbackPayments, Consts.FallbackApiFee)
                     }
                 );
             })
@@ -53,47 +53,13 @@ public static class PaymentEndpoints
             .WithOpenApi();
 
         app.MapPost("/payments", async (
-                [FromServices] IHttpClientFactory httpClientFactory,
-                [FromServices] PaymentRepository paymentRepository,
                 [FromServices] PaymentChannel paymentChannel,
                 [FromBody] PaymentModel payment,
                 CancellationToken cancellationToken) =>
             {
-                var paymentResult = await paymentRepository.PersistPayment(payment, cancellationToken);
-                if (paymentResult.IsFailed)
-                    return Results.Problem
-                    (
-                        statusCode: (int)HttpStatusCode.InternalServerError,
-                        title: "Error while processing payment",
-                        detail: string.Join(',', paymentResult.Errors)
-                    );
-
-                using var client = httpClientFactory.CreateClient();
-                var uri = new Uri($"{Consts.DefaultApiAddress}/payments");
-                var paymentBody = new
-                {
-                    correlationId = payment.CorrelationId,
-                    amount = payment.Amount,
-                    requestedAt = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")
-                };
-
-                Console.WriteLine("Request received {0}", paymentBody);
-
-                // Post request to the payment channel
                 await paymentChannel.Writer.WriteAsync(payment, cancellationToken);
 
                 return Results.Accepted();
-
-                //using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
-
-                //return response.IsSuccessStatusCode
-                //    ? Results.Accepted()
-                //    : Results.Problem
-                //    (
-                //        statusCode: (int)response.StatusCode,
-                //        title: "Error while processing payment",
-                //        detail: response.ReasonPhrase
-                //    );
             })
             .WithName("payments")
             .WithOpenApi();

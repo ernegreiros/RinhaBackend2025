@@ -15,7 +15,8 @@ public class PaymentRepository
         {
             await using var connection = new NpgsqlConnection(_connectionString);
             await using var command = connection.CreateCommand();
-            command.CommandText = "insert into payment (amount, service, createdOn) values (@amount, @service, @createdOn)";
+            command.CommandText = "insert into payment (correlationId, amount, service, createdOn) values (@correlationId, @amount, @service, @createdOn)";
+            command.Parameters.AddWithValue("correlationId", payment.CorrelationId);
             command.Parameters.AddWithValue("amount", payment.Amount);
             command.Parameters.AddWithValue("service", payment.Service);
             command.Parameters.AddWithValue("createdOn", payment.CreatedOn);
@@ -43,7 +44,7 @@ public class PaymentRepository
         {
             await using var connection = new NpgsqlConnection(_connectionString);
             await using var command = connection.CreateCommand();
-            command.CommandText = "select amount, service, createdOn from payment";
+            command.CommandText = "select correlationId, amount, service, createdOn from payment";
 
             if (from != DateTimeOffset.MinValue)
             {
@@ -66,11 +67,12 @@ public class PaymentRepository
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {
+                var correlationId = reader.GetGuid(reader.GetOrdinal("correlationId"));
                 var amount = reader.GetDecimal(reader.GetOrdinal("amount"));
                 var service = reader.GetString(reader.GetOrdinal("service"));
                 var createdOn = reader.GetDateTime(reader.GetOrdinal("createdOn"));
 
-                payments.Add(new Payment(amount, service, createdOn));
+                payments.Add(new Payment(correlationId, amount, service, createdOn));
             }
 
             return Result.Ok(payments.ToImmutableList());

@@ -2,17 +2,17 @@
 
 public class PaymentChannel
 {
-    private readonly Channel<PaymentModel> _channel;
+    private readonly Channel<Payment> _channel;
     public PaymentChannel()
     {
-        _channel = Channel.CreateUnbounded<PaymentModel>(new UnboundedChannelOptions
+        _channel = Channel.CreateUnbounded<Payment>(new UnboundedChannelOptions
         {
-            SingleReader = true,
+            SingleReader = true, // TODO: Test if it's gonna be necessary to use more readers
             SingleWriter = false
         });
     }
 
-    public ChannelReader<PaymentModel> Reader => _channel.Reader;
+    public ChannelReader<Payment> Reader => _channel.Reader;
 
-    public ChannelWriter<PaymentModel> Writer => _channel.Writer;
+    public ChannelWriter<Payment> Writer => _channel.Writer;
 }
