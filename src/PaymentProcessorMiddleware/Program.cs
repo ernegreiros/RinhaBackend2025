@@ -5,7 +5,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]));
 builder.Services.AddSingleton(_ => new PaymentChannel());
 builder.Services.AddHostedService(_ => new PaymentChannelProcessor(_.GetRequiredService<IHttpClientFactory>(), _.GetRequiredService<PaymentChannel>()));
-builder.Services.AddHostedService<PingHealthCheckWorker>();
 
 var app = builder.Build();
 app.UseSwagger();

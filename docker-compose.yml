@@ -17,11 +17,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.3"
           memory: "100MB"
-  api01: &api
-    container_name: api01
-    hostname: api01
+  
+  payment-processor-mid-1: &api
+    container_name: payment-processor-mid-1
+    hostname: payment-processor-mid-1
     build:
       context: ./src
       dockerfile: PaymentProcessorMiddleware/Dockerfile
@@ -38,14 +39,25 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '125MB'
-  api02:
+          cpus: '0.4'
+          memory: '83MB'
+  payment-processor-mid-2:
     <<: *api 
-    container_name: api02
-    hostname: api02
+    container_name: payment-processor-mid-2
+    hostname: payment-processor-mid-2
     ports:
       - "10000:80"
+  
+  payment-processor-mid-health-check:
+    <<: *api
+    container_name: payment-processor-mid-health-check
+    hostname: payment-processor-mid-health-check
+    build:
+      context: ./src
+      dockerfile: PaymentProcessorMiddleware.HealthCheck/Dockerfile
+    ports:
+      - "10001:80"
+  
 networks:
   backend:
     driver: bridge
