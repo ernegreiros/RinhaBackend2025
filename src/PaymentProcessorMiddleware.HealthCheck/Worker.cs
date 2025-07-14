@@ -42,14 +42,15 @@ public class Worker : BackgroundService
         {
             using var client = _httpClientFactory.CreateClient();
             var response = await client.GetFromJsonAsync<PaymentProcessorHealth>(uri, cancellationToken);
-            if (response is null)
-                return;
-
-            processorHealth.Failing = response.Failing;
+            
+            processorHealth.Failing = response!.Failing;
             processorHealth.MinResponseTime = response.MinResponseTime;
         }
         catch (Exception ex)
         {
+            processorHealth.Failing = true;
+            processorHealth.MinResponseTime = 1_000;
+            
             Console.WriteLine("Error while fetching health state from {0}. {1}", uri.Host, ex.Message);
         }
     }
