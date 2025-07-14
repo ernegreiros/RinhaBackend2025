@@ -19,12 +19,12 @@ app.MapGet("/payment-processor-health", (
     (
         new
         {
-            DefaultPaymentProcessor = new
+            defaultPaymentProcessor = new
             {
                 defaultPaymentProcessorHealth.Failing,
                 defaultPaymentProcessorHealth.MinResponseTime,
             },
-            FallbackPaymentProcessor = new
+            fallbackPaymentProcessor = new
             {
                 fallbackPaymentProcessorHealth.Failing,
                 fallbackPaymentProcessorHealth.MinResponseTime,
