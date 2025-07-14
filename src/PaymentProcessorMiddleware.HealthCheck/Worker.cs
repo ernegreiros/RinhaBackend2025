@@ -20,13 +20,8 @@ public class Worker : BackgroundService
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (true)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            
             await Task.Delay(6_000, cancellationToken);
             await Task.WhenAll
             (
