@@ -35,7 +35,6 @@
     <Using Include="Endpoints" />
     <Using Include="Models" />
     <Using Include="Infrastructure" />
-    <Using Include="Infrastructure.Channels" />
   </ItemGroup>
 
 </Project>

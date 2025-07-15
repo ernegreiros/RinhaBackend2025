@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Channels;
+﻿namespace Infrastructure;
 
 public class PaymentChannel
 {
