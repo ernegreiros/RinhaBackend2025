@@ -28,14 +28,24 @@ public class PaymentChannelProcessor : BackgroundService
             var responseDefaultService = await _paymentProcessorFacade.SendPaymentToDefaultService(payment, stoppingToken);
             if (responseDefaultService.IsSuccess)
             {
-                await _paymentRepository.PersistPayment(payment, stoppingToken);
+                await _paymentRepository.PersistPayment
+                (
+                    payment with { Service = Consts.DefaultApiAlias }, stoppingToken
+                );
             }
             else
             {
                 // This is temporary
-                await _paymentProcessorFacade.SendPaymentToFallbackService(payment, stoppingToken);
+                var responseFallbackService = await _paymentProcessorFacade.SendPaymentToFallbackService(payment, stoppingToken);
+                if (responseFallbackService.IsSuccess)
+                {
+                    await _paymentRepository.PersistPayment
+                    (
+                        payment with { Service = Consts.FallbackApiAlias }, stoppingToken
+                    );
+                }
                 
-                // retry mechanism considering the health of both services
+                // mechanism that checks which service is the best to use
             }
         }
     }

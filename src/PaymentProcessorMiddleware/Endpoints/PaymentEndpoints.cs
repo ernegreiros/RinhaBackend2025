@@ -1,4 +1,4 @@
-﻿using Npgsql.Internal;
+﻿using Microsoft.Extensions.Options;
 
 namespace Endpoints;
 
@@ -8,6 +8,7 @@ public static class PaymentEndpoints
     {
         app.MapGet("/payments-summary", async (
                 [FromServices] PaymentRepository paymentRepository,
+                [FromServices] IOptions<PaymentProcessorServiceConfig> paymentProcessorServiceConfig,
                 [FromQuery(Name = "from")] string? f,
                 [FromQuery(Name = "to")] string? t,
                 CancellationToken cancellationToken) =>
@@ -44,8 +45,8 @@ public static class PaymentEndpoints
                 (
                     new
                     {
-                        @default = BuildSummary(defaultPayments, Consts.DefaultApiFee),
-                        fallback = BuildSummary(fallbackPayments, Consts.FallbackApiFee)
+                        @default = BuildSummary(defaultPayments, paymentProcessorServiceConfig.Value.Default.Fee),
+                        fallback = BuildSummary(fallbackPayments, paymentProcessorServiceConfig.Value.Fallback.Fee)
                     }
                 );
             })
@@ -73,7 +74,6 @@ public static class PaymentEndpoints
         totalAmount = payments?.Count > 0
             ? payments.Sum(p => p.Amount)
             : 0,
-        // TODO: double check how to get the fee
         totalFee = payments?.Count > 0
             ? payments.Sum(p => p.Amount * fee)
             : 0,

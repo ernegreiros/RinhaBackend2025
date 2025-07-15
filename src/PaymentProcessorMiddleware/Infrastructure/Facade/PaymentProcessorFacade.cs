@@ -1,18 +1,22 @@
-﻿namespace Infrastructure;
+﻿using Microsoft.Extensions.Options;
+
+namespace Infrastructure;
 
 public class PaymentProcessorFacade
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly PaymentProcessorServiceConfig _paymentProcessorServiceConfig;
 
-    public PaymentProcessorFacade(IHttpClientFactory httpClientFactory)
+    public PaymentProcessorFacade(IHttpClientFactory httpClientFactory, IOptions<PaymentProcessorServiceConfig> paymentProcessorServiceConfig)
     {
         _httpClientFactory = httpClientFactory;
+        _paymentProcessorServiceConfig = paymentProcessorServiceConfig.Value;
     }
     
     public async Task<Result> SendPaymentToDefaultService(Payment payment, CancellationToken cancellationToken)
     {
         using var client = _httpClientFactory.CreateClient();
-        var uri = new Uri($"{Consts.DefaultApiAddress}/payments");
+        var uri = new Uri($"{_paymentProcessorServiceConfig.Default.Url}/payments");
         var paymentBody = new
         {
             correlationId = payment.CorrelationId,
@@ -29,7 +33,7 @@ public class PaymentProcessorFacade
     public async Task<Result> SendPaymentToFallbackService(Payment payment, CancellationToken cancellationToken)
     {
         using var client = _httpClientFactory.CreateClient();
-        var uri = new Uri($"{Consts.FallbackApiAddress}/payments");
+        var uri = new Uri($"{_paymentProcessorServiceConfig.Fallback.Url}/payments");
         var paymentBody = new
         {
             correlationId = payment.CorrelationId,
