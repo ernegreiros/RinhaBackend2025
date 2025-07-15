@@ -21,7 +21,7 @@ public class PaymentProcessorFacade
         {
             correlationId = payment.CorrelationId,
             amount = payment.Amount,
-            requestedAt = payment.CreatedOn.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            requestedAt = payment.CreatedOn.ToString("O")
         };
             
         using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
@@ -38,7 +38,7 @@ public class PaymentProcessorFacade
         {
             correlationId = payment.CorrelationId,
             amount = payment.Amount,
-            requestedAt = payment.CreatedOn.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            requestedAt = payment.CreatedOn.ToString("O")
         };
             
         using var response = await client.PostAsJsonAsync(uri, paymentBody, cancellationToken);
