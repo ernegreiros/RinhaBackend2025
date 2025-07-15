@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+builder.Services.Configure<PaymentProcessorServiceConfig>(builder.Configuration.GetSection("PaymentProcessorService"));
 builder.Services.AddSingleton<DefaultPaymentProcessorHealth>();
 builder.Services.AddSingleton<FallbackPaymentProcessorHealth>();
 builder.Services.AddHostedService<Worker>();

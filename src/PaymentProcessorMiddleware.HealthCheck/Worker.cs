@@ -1,21 +1,24 @@
-﻿namespace PaymentProcessorMiddleware.HealthCheck;
+﻿using Microsoft.Extensions.Options;
+
+namespace PaymentProcessorMiddleware.HealthCheck;
 
 public class Worker : BackgroundService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly DefaultPaymentProcessorHealth _defaultPaymentProcessorHealth;
     private readonly FallbackPaymentProcessorHealth _fallbackPaymentProcessorHealth;
-    private readonly Uri _uriDefault = new("http://payment-processor-default:8080/payments/service-health");
-    private readonly Uri _uriFallback = new("http://payment-processor-fallback:8080/payments/service-health");
+    private readonly PaymentProcessorServiceConfig _paymentProcessorServiceConfig;
     
     public Worker(
         IHttpClientFactory httpClientFactory,
         DefaultPaymentProcessorHealth defaultPaymentProcessorHealth,
-        FallbackPaymentProcessorHealth fallbackPaymentProcessorHealth)
+        FallbackPaymentProcessorHealth fallbackPaymentProcessorHealth,
+        IOptions<PaymentProcessorServiceConfig> paymentProcessorServiceConfig)
     {
         _httpClientFactory = httpClientFactory;
         _defaultPaymentProcessorHealth = defaultPaymentProcessorHealth;
         _fallbackPaymentProcessorHealth = fallbackPaymentProcessorHealth;
+        _paymentProcessorServiceConfig = paymentProcessorServiceConfig.Value;
     }
     
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -25,17 +28,18 @@ public class Worker : BackgroundService
             await Task.Delay(6_000, cancellationToken);
             await Task.WhenAll
             (
-                CheckHealth(_uriDefault, _defaultPaymentProcessorHealth, cancellationToken),
-                CheckHealth(_uriFallback, _fallbackPaymentProcessorHealth, cancellationToken)
+                CheckHealth(_paymentProcessorServiceConfig.DefaultUrl, _defaultPaymentProcessorHealth, cancellationToken),
+                CheckHealth(_paymentProcessorServiceConfig.FallbackUrl, _fallbackPaymentProcessorHealth, cancellationToken)
             );
         }
     }
 
-    private async Task CheckHealth(Uri uri, PaymentProcessorHealth processorHealth, CancellationToken cancellationToken)
+    private async Task CheckHealth(string url, PaymentProcessorHealth processorHealth, CancellationToken cancellationToken)
     {
         try
         {
             using var client = _httpClientFactory.CreateClient();
+            var uri = new Uri(url);
             var response = await client.GetFromJsonAsync<PaymentProcessorHealth>(uri, cancellationToken);
             
             processorHealth.Failing = response!.Failing;
@@ -46,7 +50,7 @@ public class Worker : BackgroundService
             processorHealth.Failing = true;
             processorHealth.MinResponseTime = 1_000;
             
-            Console.WriteLine("Error while fetching health state from {0}. {1}", uri.Host, ex.Message);
+            Console.WriteLine("Error while fetching health state from {0}. {1}", url, ex.Message);
         }
     }
 }
