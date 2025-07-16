@@ -16,7 +16,6 @@ public static class PaymentEndpoints
                 var from = string.IsNullOrWhiteSpace(f)
                     ? DateTimeOffset.MinValue
                     : DateTimeOffset.Parse(f);
-
                 var to = string.IsNullOrWhiteSpace(t)
                     ? DateTimeOffset.MaxValue
                     : DateTimeOffset.Parse(t);

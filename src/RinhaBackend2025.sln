@@ -9,9 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{FEAAC4A5
 	ProjectSection(SolutionItems) = preProject
 		..\docker-compose.yml = ..\docker-compose.yml
 		..\config\setup.sql = ..\config\setup.sql
+		..\config\nginx.conf = ..\config\nginx.conf
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentProcessorMiddleware.HealthCheck", "PaymentProcessorMiddleware.HealthCheck\PaymentProcessorMiddleware.HealthCheck.csproj", "{AFB1B415-F424-4AC7-84A6-F0751142F010}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +22,6 @@ Global
 		{C7ED5653-9279-4E84-9E38-CB34D399EAB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7ED5653-9279-4E84-9E38-CB34D399EAB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7ED5653-9279-4E84-9E38-CB34D399EAB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AFB1B415-F424-4AC7-84A6-F0751142F010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AFB1B415-F424-4AC7-84A6-F0751142F010}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AFB1B415-F424-4AC7-84A6-F0751142F010}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AFB1B415-F424-4AC7-84A6-F0751142F010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,8 +2,13 @@ using PaymentProcessorMiddleware.HealthCheck;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();    
+}
+
 builder.Services.AddHttpClient();
 builder.Services.Configure<PaymentProcessorServiceConfig>(builder.Configuration.GetSection("PaymentProcessorService"));
 builder.Services.AddSingleton<DefaultPaymentProcessorHealth>();
@@ -11,8 +16,12 @@ builder.Services.AddSingleton<FallbackPaymentProcessorHealth>();
 builder.Services.AddHostedService<Worker>();
 
 var app = builder.Build();
-app.UseSwagger();
-app.UseSwaggerUI();
+
+if (builder.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.MapGet("/payment-processor-health", (
         [FromServices] DefaultPaymentProcessorHealth defaultPaymentProcessorHealth,

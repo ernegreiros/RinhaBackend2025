@@ -4,7 +4,7 @@ namespace PaymentProcessorMiddleware.HealthCheck;
 
 public class Worker : BackgroundService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly HttpClient _httpClient;
     private readonly DefaultPaymentProcessorHealth _defaultPaymentProcessorHealth;
     private readonly FallbackPaymentProcessorHealth _fallbackPaymentProcessorHealth;
     private readonly PaymentProcessorServiceConfig _paymentProcessorServiceConfig;
@@ -15,7 +15,7 @@ public class Worker : BackgroundService
         FallbackPaymentProcessorHealth fallbackPaymentProcessorHealth,
         IOptions<PaymentProcessorServiceConfig> paymentProcessorServiceConfig)
     {
-        _httpClientFactory = httpClientFactory;
+        _httpClient = httpClientFactory.CreateClient();
         _defaultPaymentProcessorHealth = defaultPaymentProcessorHealth;
         _fallbackPaymentProcessorHealth = fallbackPaymentProcessorHealth;
         _paymentProcessorServiceConfig = paymentProcessorServiceConfig.Value;
@@ -38,9 +38,8 @@ public class Worker : BackgroundService
     {
         try
         {
-            using var client = _httpClientFactory.CreateClient();
-            var uri = new Uri(url);
-            var response = await client.GetFromJsonAsync<PaymentProcessorHealth>(uri, cancellationToken);
+            var uri = new Uri($"{url}/payments/service-health");
+            var response = await _httpClient.GetFromJsonAsync<PaymentProcessorHealth>(uri, cancellationToken);
             
             processorHealth.Failing = response!.Failing;
             processorHealth.MinResponseTime = response.MinResponseTime;
@@ -52,5 +51,11 @@ public class Worker : BackgroundService
             
             Console.WriteLine("Error while fetching health state from {0}. {1}", url, ex.Message);
         }
+    }
+    
+    public override void Dispose()
+    {
+        _httpClient.Dispose();
+        base.Dispose();
     }
 }
