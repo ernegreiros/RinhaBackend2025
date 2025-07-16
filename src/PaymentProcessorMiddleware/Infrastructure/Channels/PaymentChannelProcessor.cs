@@ -24,9 +24,7 @@ public class PaymentChannelProcessor : BackgroundService
         await foreach (var payment in _paymentChannel.Reader.ReadAllAsync(stoppingToken))
         {
             if (stoppingToken.IsCancellationRequested)
-            {
                 break;
-            }
             
             var defaultResponse = await SendToDefaultService(payment, stoppingToken);
             if (defaultResponse.IsSuccess)
