@@ -1,37 +1,23 @@
 using PaymentProcessorMiddleware.HealthCheck;
 using Microsoft.AspNetCore.Mvc;
+using SignalHub;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.Configure<PaymentProcessorServiceConfig>(builder.Configuration.GetSection("PaymentProcessorService"));
-builder.Services.AddSingleton<DefaultPaymentProcessorHealth>();
-builder.Services.AddSingleton<FallbackPaymentProcessorHealth>();
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddSignalR(o =>
+{
+    o.EnableDetailedErrors = true;
+});
 
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/payment-processor-health", (
-        [FromServices] DefaultPaymentProcessorHealth defaultPaymentProcessorHealth,
-        [FromServices] FallbackPaymentProcessorHealth fallbackPaymentProcessorHealth) => Results.Ok
-    (
-        new
-        {
-            defaultPaymentProcessor = new
-            {
-                defaultPaymentProcessorHealth.Failing,
-                defaultPaymentProcessorHealth.MinResponseTime,
-            },
-            fallbackPaymentProcessor = new
-            {
-                fallbackPaymentProcessorHealth.Failing,
-                fallbackPaymentProcessorHealth.MinResponseTime,
-            }
-        }
-    ))
-    .WithName("GetPaymentsProcessorHealth");
+app.MapHub<PaymentHealthCheckHub>("/paymentHub");
 
 app.Run();

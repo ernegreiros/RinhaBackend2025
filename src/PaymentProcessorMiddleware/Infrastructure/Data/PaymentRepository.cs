@@ -1,19 +1,12 @@
 ﻿namespace Infrastructure;
 
-public class PaymentRepository
+public class PaymentRepository(string connectionString)
 {
-    private readonly string _connectionString;
-    
-    public PaymentRepository(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
-    
-    public async Task<Result> PersistPayment(Payment payment, CancellationToken cancellationToken)
+    public async Task<Result> PersistPaymentAsync(Payment payment, CancellationToken cancellationToken)
     {
         try
         {
-            await using var connection = new NpgsqlConnection(_connectionString);
+            await using var connection = new NpgsqlConnection(connectionString);
             await using var command = connection.CreateCommand();
             command.CommandText = "insert into payment (correlationId, amount, service, createdOn) values (@correlationId, @amount, @service, @createdOn)";
             command.Parameters.AddWithValue("correlationId", payment.CorrelationId);
@@ -42,21 +35,21 @@ public class PaymentRepository
     {
         try
         {
-            await using var connection = new NpgsqlConnection(_connectionString);
+            await using var connection = new NpgsqlConnection(connectionString);
             await using var command = connection.CreateCommand();
-            command.CommandText = "select correlationId, amount, service, createdOn from payment";
+            var commandText = new StringBuilder("select correlationId, amount, service, createdOn from payment");
 
             if (from != DateTimeOffset.MinValue)
             {
-                command.CommandText += " where createdOn >= @from ";
+                commandText.Append(" where createdOn >= @from ");
                 command.Parameters.AddWithValue("from", from);
             }
 
             if (to != DateTimeOffset.MaxValue)
             {
-                command.CommandText += from != DateTimeOffset.MinValue
+                commandText.Append(from != DateTimeOffset.MinValue
                     ? " and createdOn <= @to" 
-                    : " where createdOn <= @to";
+                    : " where createdOn <= @to");
                 
                 command.Parameters.AddWithValue("to", to);
             }
@@ -64,6 +57,7 @@ public class PaymentRepository
             await connection.OpenAsync(cancellationToken);
             
             var payments = new List<Payment>();
+            command.CommandText = commandText.ToString();
             await using var reader = await command.ExecuteReaderAsync(cancellationToken);
             while (await reader.ReadAsync(cancellationToken))
             {

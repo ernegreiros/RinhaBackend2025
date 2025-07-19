@@ -7,8 +7,8 @@ public class PaymentChannel
     {
         _channel = Channel.CreateUnbounded<Payment>(new UnboundedChannelOptions
         {
-            SingleReader = true, // TODO: Test if it's gonna be necessary to use more readers
-            SingleWriter = false
+            SingleReader = false,
+            SingleWriter = false,
         });
     }
 

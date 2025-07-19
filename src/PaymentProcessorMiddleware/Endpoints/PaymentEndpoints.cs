@@ -59,7 +59,6 @@ public static class PaymentEndpoints
                 CancellationToken cancellationToken) =>
             {
                 await paymentChannel.Writer.WriteAsync(payment, cancellationToken);
-
                 return Results.Accepted();
             })
             .WithName("payments")
