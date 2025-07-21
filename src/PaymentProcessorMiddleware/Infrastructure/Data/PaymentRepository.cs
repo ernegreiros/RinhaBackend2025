@@ -32,8 +32,6 @@ public class PaymentRepository
                 ? e.InnerException.Message
                 : e.Message; 
             
-            Console.WriteLine(error);
-            
             return Result.Fail(error);
         }
     }
@@ -81,9 +79,7 @@ public class PaymentRepository
         {
             var error = e.InnerException is not null
                 ? e.InnerException.Message
-                : e.Message; 
-            
-            Console.WriteLine(error);
+                : e.Message;
             
             return Result.Fail(error);
         }
