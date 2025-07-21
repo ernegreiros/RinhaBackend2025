@@ -8,13 +8,16 @@ if (builder.Environment.IsDevelopment())
 builder.Services
     .Configure<PaymentProcessorServiceConfig>(builder.Configuration.GetSection("PaymentProcessorService"))
     .AddHttpClient()
-    .AddHostedService<PaymentChannelProcessor>()
-    .AddTransient(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]))
-    .AddTransient<PaymentProcessorFacade>()
-    .AddSingleton(_ => new PaymentChannel());
+    .AddSingleton(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]))
+    .AddSingleton<PaymentProcessorFacade>()
+    .AddSingleton<PaymentChannel>();
+
+foreach (var _ in Enumerable.Range(0, 10))
+{
+    builder.Services.AddHostedService<PaymentChannelProcessor>();
+}
 
 var app = builder.Build();
-
 app.AddPaymentEndpoints();
 
 if (builder.Environment.IsDevelopment())

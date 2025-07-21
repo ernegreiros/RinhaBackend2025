@@ -46,12 +46,10 @@ public class PaymentChannelProcessor : BackgroundService
         if (fallbackServiceResponse.IsFailed) 
             return Result.Fail("Failed to process payment using default service");
         
-        await _paymentRepository.PersistPayment
+        return await _paymentRepository.PersistPayment
         (
             payment with { Service = Consts.DefaultApiAlias }, stoppingToken
         );
-            
-        return Result.Ok();
     }
     
     private async Task<Result> SendToFallbackService(Payment payment, CancellationToken stoppingToken = default)
@@ -60,11 +58,9 @@ public class PaymentChannelProcessor : BackgroundService
         if (fallbackServiceResponse.IsFailed) 
             return Result.Fail("Failed to process payment using fallback service");
         
-        await _paymentRepository.PersistPayment
+        return await _paymentRepository.PersistPayment
         (
             payment with { Service = Consts.FallbackApiAlias }, stoppingToken
         );
-            
-        return Result.Ok();
     }
 }
