@@ -23,9 +23,7 @@ services:
   payment-processor-mid-1: &api
     container_name: payment-processor-mid-1
     hostname: payment-processor-mid-1
-    build:
-      context: ./src
-      dockerfile: PaymentProcessorMiddleware/Dockerfile
+    image: ferhgm/api-rinha-3:latest
     environment:
       - ASPNETCORE_URLS=http://*:80
       - ASPNETCORE_ENVIRONMENT=Production
