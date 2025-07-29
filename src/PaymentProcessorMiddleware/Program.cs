@@ -10,12 +10,8 @@ builder.Services
     .AddHttpClient()
     .AddSingleton(_ => new PaymentRepository(builder.Configuration["ConnectionStrings:Postgres"]))
     .AddSingleton<PaymentProcessorFacade>()
-    .AddSingleton<PaymentChannel>();
-
-foreach (var _ in Enumerable.Range(0, 10))
-{
-    builder.Services.AddHostedService<PaymentChannelProcessor>();
-}
+    .AddSingleton<PaymentChannel>()
+    .AddHostedService<PaymentChannelProcessor>();
 
 var app = builder.Build();
 app.AddPaymentEndpoints();
